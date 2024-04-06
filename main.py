@@ -53,12 +53,18 @@ def stop_robot(db: Session = Depends(get_db)):
 
     now_time = datetime.now().time()
 
-    time_start = (
-        db.query(RobotRecords)
-        .filter(RobotRecords.id == last_record_id)
-        .first()
-        .time_launch
-    )
+    try:
+        time_start = (
+            db.query(RobotRecords)
+            .filter(RobotRecords.id == last_record_id)
+            .first()
+            .time_launch
+        )
+    except AttributeError:
+        return {
+            "message": "Last robot was stopped, but database missed important data, so record was not created"
+        }
+
     time_diff = datetime.combine(date.today(), now_time) - datetime.combine(
         date.today(), time_start
     )
